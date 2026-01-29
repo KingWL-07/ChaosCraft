@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChaosCraft | Loja Oficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-purple: #bc13fe;
+            --deep-black: #000000;
+        }
+
+        /* --- TELA DE CARREGAMENTO --- */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--deep-black); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 60px; height: 60px;
+            border: 6px solid rgba(188, 19, 254, 0.1);
+            border-top: 6px solid var(--neon-purple);
+            border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- GLOBAL --- */
+        body {
+            background-color: var(--deep-black);
+            color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0; display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; opacity: 0; transition: opacity 0.8s ease;
+        }
+        body.loaded { opacity: 1; }
+
+        /* --- BARRA SUPERIOR (ESTILO ROMACLOUD) --- */
+        .top-nav {
+            width: 100%;
+            background: #000;
+            padding: 15px 0;
+            border-bottom: 2px solid var(--neon-purple);
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .top-logo {
+            margin-left: 5%;
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .top-logo span:first-child { color: var(--neon-purple); }
+        .top-logo span:last-child { color: #fff; }
+
+        /* --- HEADER PRINCIPAL --- */
+        header { padding: 80px 20px 40px; text-align: center; }
+        header h1 { 
+            font-size: clamp(3.5rem, 10vw, 6rem); 
+            margin: 0; font-weight: 800;
+            background: linear-gradient(to bottom, #fff, var(--neon-purple)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+
+        /* --- CARDS --- */
+        .store-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px; width: 92%; max-width: 1300px; margin-bottom: 120px;
+        }
+        .card {
+            background: #0a0a0a; border-radius: 30px; padding: 50px 30px;
+            text-align: center; border: 1px solid rgba(188, 19, 254, 0.15);
+            position: relative; overflow: hidden; transition: 0.4s;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .card:hover { transform: translateY(-10px); border-color: var(--neon-purple); box-shadow: 0 10px 30px rgba(188, 19, 254, 0.2); }
+
+        .badge-estoque {
+            position: absolute; top: 20px; right: -35px;
+            background: var(--neon-purple); color: #fff;
+            font-weight: 800; font-size: 0.7rem; padding: 8px 40px;
+            transform: rotate(45deg); text-transform: uppercase;
+        }
+
+        .vip-name { font-weight: 800; font-size: 2.2rem; color: #fff; margin: 15px 0; letter-spacing: 1px; }
+        .pre-price { font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; }
+        
+        .price-wrapper { display: flex; justify-content: center; align-items: baseline; margin: 20px 0; }
+        .currency { color: var(--neon-purple); font-weight: 800; margin-right: 5px; font-size: 1.2rem; }
+        .value { font-size: 5rem; font-weight: 800; letter-spacing: -4px; }
+        .cents { color: #444; font-weight: 800; font-size: 1.5rem; }
+
+        .buy-btn {
+            background: #fff; color: #000; border: none; padding: 20px; width: 100%;
+            border-radius: 15px; font-weight: 800; cursor: pointer; transition: 0.3s;
+            margin-top: 20px; text-transform: uppercase;
+        }
+        .buy-btn:hover { background: var(--neon-purple); color: #fff; }
+
+        /* --- SUPORTE DISCORD (ROXO) --- */
+        .discord-wrapper { position: fixed; bottom: 30px; right: 30px; z-index: 9999; }
+        .discord-circle {
+            width: 70px; height: 70px;
+            background: var(--neon-purple); border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.5);
+            cursor: pointer; position: relative; transition: 0.3s ease; 
+        }
+        .discord-circle::after {
+            content: ''; position: absolute; width: 100%; height: 100%;
+            border-radius: 50%; border: 2px solid var(--neon-purple);
+            animation: ping-purple 2s infinite;
+        }
+        .discord-icon-img { width: 35px; height: 35px; fill: #fff; }
+
+        @keyframes ping-purple {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 10000;
+        }
+        .modal { background: #080808; border: 1px solid var(--neon-purple); border-radius: 30px; padding: 40px; text-align: center; width: 90%; max-width: 400px; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <nav class="top-nav">
+        <div class="top-logo">
+            <span>CHAOS</span><span>CRAFT</span>
+        </div>
+    </nav>
+
+    <header>
+        <h1>ChaosCraft</h1>
+        <p style="letter-spacing: 5px; opacity: 0.4; font-weight: 300; margin-top: 10px;">LOJA OFICIAL</p>
+    </header>
+
+    <div class="store-container">
+        <div class="card">
+            <div class="badge-estoque">Estoque</div>
+            <h2 class="vip-name">BASIC</h2>
+            <span class="pre-price">A partir de</span>
+            <div class="price-wrapper">
+                <span class="currency">R$</span><span class="value">10</span><span class="cents">,00</span>
+            </div>
+            <button class="buy-btn" onclick="openPix('BASIC', '10,00')">Adquirir</button>
+        </div>
+
+        <div class="card">
+            <div class="badge-estoque">Estoque</div>
+            <h2 class="vip-name">PREMIUM</h2>
+            <span class="pre-price">A partir de</span>
+            <div class="price-wrapper">
+                <span class="currency">R$</span><span class="value">16</span><span class="cents">,00</span>
+            </div>
+            <button class="buy-btn" onclick="openPix('PREMIUM', '16,00')">Adquirir</button>
+        </div>
+
+        <div class="card">
+            <div class="badge-estoque">Estoque</div>
+            <h2 class="vip-name">ULTRA</h2>
+            <span class="pre-price">A partir de</span>
+            <div class="price-wrapper">
+                <span class="currency">R$</span><span class="value">25</span><span class="cents">,00</span>
+            </div>
+            <button class="buy-btn" onclick="openPix('ULTRA', '25,00')">Adquirir</button>
+        </div>
+
+        <div class="card" style="border: 2px solid var(--neon-purple);">
+            <div class="badge-estoque">Estoque</div>
+            <h2 class="vip-name">ULTRA+</h2>
+            <span class="pre-price">A partir de</span>
+            <div class="price-wrapper">
+                <span class="currency">R$</span><span class="value">40</span><span class="cents">,00</span>
+            </div>
+            <button class="buy-btn" onclick="openPix('ULTRA+', '40,00')" style="background: var(--neon-purple); color: #fff;">Dominar</button>
+        </div>
+    </div>
+
+    <a href="https://discord.gg/838GRYcK4w" target="_blank" class="discord-wrapper">
+        <div class="discord-circle">
+            <svg class="discord-icon-img" viewBox="0 0 24 24">
+                <path d="M12 1a9 9 0 0 0-9 9v7a3 3 0 0 0 3 3h3v-8H5v-2a7 7 0 1 1 14 0v2h-4v8h3a3 3 0 0 0 3-3v-7a9 9 0 0 0-9-9z"/>
+            </svg>
+        </div>
+    </a>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2 id="modalTitle" style="color:#fff">Pagamento</h2>
+            <div style="background: #111; padding: 20px; border-radius: 15px; margin: 20px 0; border: 1px dashed var(--neon-purple);">
+                <span id="pixKey" style="color:#fff; font-weight:800; font-size: 1.1rem;">11651874930</span>
+            </div>
+            <button class="buy-btn" id="copyBtn" onclick="copyPix()">COPIAR CHAVE PIX</button>
+            <button onclick="closePix()" style="background:none; border:none; color:#444; cursor:pointer; font-weight:800; margin-top: 20px;">VOLTAR</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+                document.body.classList.add('loaded');
+            }, 800);
+        });
+
+        function openPix(rank, valor) {
+            document.getElementById('modalTitle').innerText = "VIP " + rank + " - R$ " + valor;
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+        function closePix() { document.getElementById('modalOverlay').style.display = 'none'; }
+        function copyPix() {
+            navigator.clipboard.writeText("11651874930").then(() => {
+                document.getElementById('copyBtn').innerText = "COPIADO!";
+                setTimeout(() => { document.getElementById('copyBtn').innerText = "COPIAR CHAVE PIX"; }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
